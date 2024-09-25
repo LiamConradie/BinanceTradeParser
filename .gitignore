@@ -1,0 +1,22 @@
+# Ignore Visual Studio temporary files, build results, and
+# other unwanted files from being tracked in Git.
+
+## Folders
+.vs/
+Debug/
+Release/
+x64/
+x86/
+ipch/
+obj/
+bin/
+
+## Files
+*.log
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.tlog
+*.lastbuildstate
+*.vsidx
