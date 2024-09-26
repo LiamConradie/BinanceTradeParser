@@ -136,9 +136,11 @@
   <ItemGroup>
     <ClCompile Include="BinanceAPI.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TradeParser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BinanceAPI.h" />
+    <ClInclude Include="TradeParser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

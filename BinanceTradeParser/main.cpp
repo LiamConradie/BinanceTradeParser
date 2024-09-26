@@ -1,18 +1,18 @@
 #include <iostream>
 #include "BinanceAPI.h"
+#include "TradeParser.h"
 
 int main() {
 
     BinanceAPI binanceAPI;
-
     std::string symbol = "BTCUSDT";
 
-    // Retrieve the aggregated trades for the symbol
-    std::string response = binanceAPI.getAggregatedTrades(symbol);
+    // Keep track of the lastTradeId
+    long long lastTradeId = -1;
 
-    // Output the parsed trades to the console
-    std::cout << "Starting Binance Trade Parser..." << std::endl;
-    binanceAPI.printParsedResponse(response);
+    // Start asynchronous polling of trades
+    std::cout << "Starting Binance Trade Polling...\n";
+    fetchAndParseTrades(binanceAPI, symbol, lastTradeId);  // Pass the lastTradeId
 
     return 0;
 }
