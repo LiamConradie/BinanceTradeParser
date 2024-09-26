@@ -1,4 +1,3 @@
-// main.cpp
 #include <iostream>
 #include "HttpClient.h"
 #include "TradeParser.h"
@@ -7,23 +6,35 @@
 int main() {
     std::cout << "Starting Binance Trade Parser..." << std::endl;
 
-    // TODO: Initialize HTTP client and connect to Binance API endpoint
-    HttpClient httpClient;
+    // Initialize HTTP client with the base URL for Binance API
+    HttpClient httpClient("https://fapi.binance.com");
 
-    // TODO: Fetch trade data from Binance API
-    std::string response = httpClient.get("/fapi/v1/aggTrades?symbol=BTCUSDT");
+    // Perform a GET request for the specific endpoint
+    std::string endpoint = "/fapi/v1/aggTrades?symbol=BTCUSDT";
+    auto responseTask = httpClient.get(endpoint);
+
+    // Wait for the response
+    responseTask.then([](std::string response) {
+        // Limit the number of characters printed to 500
+        if (response.length() > 500) {
+            std::cout << "Response (truncated to 500 chars): " << response.substr(0, 500) << "..." << std::endl;
+        }
+        else {
+            std::cout << "Response: " << response << std::endl;
+        }
+        }).wait();
 
     // TODO: Parse the incoming trade data
-    TradeParser parser;
-    auto trades = parser.parse(response);
+    //TradeParser parser;
+   // auto trades = parser.parse(response);
 
     // TODO: Measure parsing speed
-    Utils::measureParsingSpeed(response, parser);
+   // Utils::measureParsingSpeed(response, parser);
 
     // TODO: Print each trade in the specified format
-    for (const auto& trade : trades) {
-        std::cout << trade << std::endl; // Overload operator<< for Trade struct
-    }
+    //for (const auto& trade : trades) {
+   //     std::cout << trade << std::endl; // Overload operator<< for Trade struct
+    //}
 
     return 0;
 }
