@@ -4,6 +4,9 @@
 #include <string>
 #include "TradeParser.h"
 
+
+std::string to_utf8_string(const utility::string_t& input);
+
 class Utils {
 public:
     // TODO: Implement method to measure parsing speed

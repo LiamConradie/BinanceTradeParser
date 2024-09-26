@@ -114,7 +114,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\vcpkg\installed\x64-windows\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);C:\vcpkg\installed\x64-windows\lib\boost_system-vc143-mt-x64-1_85.lib;C:\vcpkg\installed\x64-windows\lib\libcrypto.lib;C:\vcpkg\installed\x64-windows\lib\libssl.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);C:\vcpkg\installed\x64-windows\lib\boost_system-vc143-mt-x64-1_85.lib;C:\vcpkg\installed\x64-windows\lib\libcrypto.lib;C:\vcpkg\installed\x64-windows\lib\libssl.lib;C:\vcpkg\installed\x64-windows\lib\libcurl.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -134,12 +134,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BinanceAPI.cpp" />
     <ClCompile Include="HttpClient.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TradeParser.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BinanceAPI.h" />
     <ClInclude Include="HttpClient.h" />
     <ClInclude Include="TradeParser.h" />
     <ClInclude Include="Utils.h" />

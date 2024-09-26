@@ -1,32 +1,42 @@
 #include "TradeParser.h"
-// Include JSON parsing library headers
-// TODO: Include necessary headers for JSON parsing (e.g., nlohmann/json)
+#include "utils.h"
+#include <cpprest/json.h>
+#include <iostream>
+#include <locale>
+#include <codecvt>
 
-TradeParser::TradeParser() {
-    // Constructor implementation (if needed)
-}
 
-std::vector<Trade> TradeParser::parse(const std::string& jsonData) {
+std::vector<Trade> TradeParser::parseTrades(const web::json::value& tradesJson) {
     std::vector<Trade> trades;
+    auto tradesArray = tradesJson.as_array();
 
-    // TODO: Implement parsing logic
-    // Parse jsonData into JSON objects
-    // For each trade object, extract the fields and populate the Trade struct
-    // Add each Trade to the trades vector
+    // Debugging: Print the number of trades received
+    std::cout << "Number of trades received: " << tradesArray.size() << std::endl;
 
-    return trades;
-}
+    // Loop through each trade in the array
+    for (const auto& trade : tradesArray) {
+        Trade parsedTrade;
+        parsedTrade.aggregateTradeId = trade.at(U("a")).as_integer();  // Aggregate trade ID
+        parsedTrade.price = to_utf8_string(trade.at(U("p")).as_string());  // Price
+        parsedTrade.quantity = to_utf8_string(trade.at(U("q")).as_string());  // Quantity
+        parsedTrade.firstTradeId = trade.at(U("f")).as_integer();  // First trade ID
+        parsedTrade.lastTradeId = trade.at(U("l")).as_integer();   // Last trade ID
+        parsedTrade.timestamp = trade.at(U("T")).as_number().to_int64();  // Timestamp
+        parsedTrade.isBuyerMaker = trade.at(U("m")).as_bool();  // Buyer is maker?
 
-// Overload the output stream operator
-std::ostream& operator<<(std::ostream& os, const Trade& trade) {
-    os << "{" << std::endl;
-    os << "  \"a\": " << trade.aggregateTradeId << "," << std::endl;
-    os << "  \"p\": \"" << trade.price << "\"," << std::endl;
-    os << "  \"q\": \"" << trade.quantity << "\"," << std::endl;
-    os << "  \"f\": " << trade.firstTradeId << "," << std::endl;
-    os << "  \"l\": " << trade.lastTradeId << "," << std::endl;
-    os << "  \"T\": " << trade.timestamp << "," << std::endl;
-    os << "  \"m\": " << (trade.isBuyerMaker ? "true" : "false") << std::endl;
-    os << "}";
-    return os;
+        // Debugging: Print each parsed trade
+        std::cout << "Parsed Trade: ["
+            << "a: " << parsedTrade.aggregateTradeId << ", "
+            << "p: " << parsedTrade.price << ", "
+            << "q: " << parsedTrade.quantity << ", "
+            << "f: " << parsedTrade.firstTradeId << ", "
+            << "l: " << parsedTrade.lastTradeId << ", "
+            << "T: " << parsedTrade.timestamp << ", "
+            << "m: " << (parsedTrade.isBuyerMaker ? "true" : "false")
+            << "]" << std::endl;
+
+        trades.push_back(parsedTrade);
+    }
+
+    return trades;  // Return the vector of trades
 }

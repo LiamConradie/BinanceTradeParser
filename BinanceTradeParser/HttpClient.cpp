@@ -1,36 +1,59 @@
 #include "HttpClient.h"
+#include "utils.h"
 #include <cpprest/http_client.h>
-#include <cpprest/filestream.h>
+#include <cpprest/json.h>
 #include <iostream>
-#include <pplx/pplxtasks.h>
+#include <thread>
+#include <chrono>
 #include <locale>
 #include <codecvt>
 
 using namespace web::http;
 using namespace web::http::client;
-using namespace utility; // For conversions::to_string_t
-using namespace concurrency::streams;
+using namespace utility;
+using namespace web::json;
+
+
 
 HttpClient::HttpClient(const std::string& base_url) : client(conversions::to_string_t(base_url)) {}
 
 HttpClient::~HttpClient() {}
 
-pplx::task<std::string> HttpClient::get(const std::string& url) {
-    // Convert std::string to utility::string_t (platform-dependent)
-    utility::string_t converted_url = conversions::to_string_t(url);
+void HttpClient::pollTrades(const std::string& endpoint, std::function<void(const web::json::value&)> onTradesReceived, int interval_seconds) {
+    while (true) {
+        try {
+            // Perform a GET request asynchronously and process the response
+            client.request(web::http::methods::GET, conversions::to_string_t(endpoint))
+                .then([&](web::http::http_response response) {
+                std::cout << "Received response with status code: " << response.status_code() << std::endl;
+                if (response.status_code() == web::http::status_codes::OK) {
+                    return response.extract_json();
+                }
+                std::cerr << "Unexpected status code: " << response.status_code() << std::endl;
+                return pplx::task_from_result(web::json::value());
+                    })
+                .then([&](web::json::value jsonResponse) {
+                if (!jsonResponse.is_null()) {
+                    // Debugging: Print the entire raw JSON response to investigate its structure
+                    std::cout << "Raw JSON response: " << to_utf8_string(jsonResponse.serialize()) << std::endl;
 
-    // Perform a GET request asynchronously
-    return client.request(methods::GET, converted_url)
-        .then([](http_response response) -> pplx::task<std::string> {
-        if (response.status_code() == status_codes::OK) {
-            // Extract the response as a wide string (utility::string_t, which is std::wstring on Windows)
-            return response.extract_string()
-                .then([](utility::string_t w_response) -> std::string {
-                // Convert the std::wstring (or utility::string_t) to std::string
-                std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-                return converter.to_bytes(w_response);
-                    });
+                    // Pass the JSON response to the trade parser
+                    std::cout << "Passing JSON to trade parser." << std::endl;
+                    onTradesReceived(jsonResponse);
+                }
+                else {
+                    std::cerr << "Received empty or null JSON response." << std::endl;
+                }
+                    }).wait();
         }
-        return pplx::task_from_result(std::string{});
-            });
+        catch (const std::exception& e) {
+            std::cerr << "Error fetching trades: " << e.what() << std::endl;
+        }
+
+        // Wait for the specified interval before making the next request
+        std::cout << "Waiting for " << interval_seconds << " seconds before the next request." << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(interval_seconds));
+    }
 }
+
+
