@@ -8,7 +8,7 @@ public:
     BinanceAPI();
     ~BinanceAPI();
     std::string getAggregatedTrades(const std::string& symbol, long long fromId = -1);  // Updated to include fromId
-    void printParsedResponse(const std::string& response);
+    void printParsedResponse(const std::string& response, long long& lastSeenTradeId);
 
 private:
     static size_t writeCallback(void* contents, size_t size, size_t nmemb, std::string* s);

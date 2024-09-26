@@ -2,10 +2,10 @@
 #include <curl/curl.h>
 #include <iostream>
 #include <nlohmann/json.hpp>
-#include <sstream>  
+#include <sstream>
 #include <chrono>
-#include <thread>  
-#include <algorithm> 
+#include <thread>
+#include <algorithm>
 
 using json = nlohmann::json;
 
@@ -55,18 +55,25 @@ std::string BinanceAPI::getAggregatedTrades(const std::string& symbol, long long
 }
 
 // Parse and print the JSON response in the required format
-void BinanceAPI::printParsedResponse(const std::string& response) {
+void BinanceAPI::printParsedResponse(const std::string& response, long long& lastSeenTradeId) {
     try {
         auto jsonArray = json::parse(response);
 
-        long long lastSeenTradeId = -1;
+        long long firstTradeIdInBatch = -1;
+        bool isFirstTrade = true;
 
         for (const auto& trade : jsonArray) {
+            // Start timing the processing of each trade
+            auto start = std::chrono::high_resolution_clock::now();
+
+            // Track the first trade ID in the batch
+            if (isFirstTrade) {
+                firstTradeIdInBatch = trade["f"].get<long long>();
+                isFirstTrade = false;
+            }
+
             // Keep track of the highest trade ID in the response
             lastSeenTradeId = std::max<long long>(lastSeenTradeId, trade["a"].get<long long>());
-
-            // Start timing the parsing of each trade
-            auto start = std::chrono::high_resolution_clock::now();
 
             // Parse and print trade information
             std::cout << "{\n";
@@ -83,16 +90,21 @@ void BinanceAPI::printParsedResponse(const std::string& response) {
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
-            // Output the time taken to parse this trade
-            std::cout << "Trade parsed in: " << duration << " microseconds.\n\n";
+            // Output the time taken to process this trade
+            std::cout << "Trade processed in: " << duration << " microseconds.\n\n";
         }
 
-        // Update the lastTradeId after processing the trades
+        // Check if any trades were missed between polls
+        if (firstTradeIdInBatch > lastSeenTradeId + 1) {
+            long long missedTrades = firstTradeIdInBatch - (lastSeenTradeId + 1);
+            std::cout << "Warning: Missed " << missedTrades << " trades between polls!\n";
+        }
+
+        // Output the last trade ID processed
         if (lastSeenTradeId > -1) {
             std::cout << "Last Trade ID Processed: " << lastSeenTradeId << std::endl;
         }
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception& e) {
         std::cerr << "Failed to parse JSON: " << e.what() << std::endl;
     }
 }
