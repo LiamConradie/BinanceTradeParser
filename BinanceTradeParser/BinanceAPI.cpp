@@ -9,6 +9,19 @@
 
 using json = nlohmann::json;
 
+/**
+ * @brief Callback function used by cURL to handle incoming data.
+ *
+ * This function is invoked by cURL as data is received from the server. It writes the received
+ * data into a string which is then returned to the caller for further processing.
+ *
+ * @param contents Pointer to the incoming data received by cURL.
+ * @param size Size of each data block (usually 1 byte).
+ * @param nmemb Number of data blocks received.
+ * @param s Pointer to the string where data will be appended.
+ * @return The total size of data processed (size * nmemb).
+ */
+
 // Callback function to handle response data
 size_t BinanceAPI::writeCallback(void* contents, size_t size, size_t nmemb, std::string* s) {
     size_t totalSize = size * nmemb;
@@ -63,7 +76,7 @@ std::string BinanceAPI::getAggregatedTrades(const std::string& symbol, long long
             return "";  // Return empty response on error
         }
 
-        std::cout << "Network request took: " << networkDuration << " ms.\n";
+        std::cout << "\nNetwork request took: " << networkDuration << " ms.\n";
         curl_easy_cleanup(curl);
     }
 
@@ -121,7 +134,7 @@ void BinanceAPI::printParsedResponse(const std::string& response, long long& las
         // End measuring the combined time after processing all trades
         auto combinedEnd = std::chrono::high_resolution_clock::now();
         auto combinedDuration = std::chrono::duration_cast<std::chrono::milliseconds>(combinedEnd - combinedStart).count();
-        std::cout << "Combined (Network + Processing) time: " << combinedDuration << " ms.\n";
+        std::cout << "\nTotal Combined (Network + Processing) time for current batch: " << combinedDuration << " ms.\n";
 
         // Print the batch size (number of trades processed)
         std::cout << "Batch size: " << batchSize << " trades.\n";

@@ -7,7 +7,7 @@ class BinanceAPI {
 public:
     BinanceAPI();
     ~BinanceAPI();
-    std::string getAggregatedTrades(const std::string& symbol, long long fromId = -1);  // Updated to include fromId
+    std::string getAggregatedTrades(const std::string& symbol, long long fromId = -1);  
     void printParsedResponse(const std::string& response, long long& lastSeenTradeId);
 
 private:
