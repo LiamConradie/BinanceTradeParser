@@ -1,6 +1,8 @@
 # BinanceTradeParser
 Part 2: Trading Specific Algorithms
 
+See Solution_Overview.pdf for design comments.
+
 ## Overview
 
 This program fetches and parses aggregated trades from the Binance USD(S)-M Futures API using the `GET /fapi/v1/aggTrades` endpoint. It allows the user to poll Binance for trade data for a specific trading pair (e.g., "BTCUSDT"). The program provides both manual polling (by pressing the spacebar) and continuous polling (by pressing `1`). Each trade is parsed and printed in a structured format, and the processing time for each trade and the total batch is displayed.
